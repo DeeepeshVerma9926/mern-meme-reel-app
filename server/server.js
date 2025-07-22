@@ -7,7 +7,9 @@ import cors from "cors";
 import authRoutes from "./routes/auth.js";             // Signup
 import loginRoutes from "./routes/loginRoutes.js";     // Login
 import dashboardRoutes from "./routes/dashboard.js";   // Protected dashboard
-import uploadRoutes from './routes/upload.js';
+import uploadRoutes from "./routes/upload.js";
+import exploreRoute from "./routes/explore.js";
+
 
 dotenv.config();
 const app = express();
@@ -20,6 +22,7 @@ app.use("/api/auth", authRoutes);       // /api/auth/signup
 app.use("/api/auth", loginRoutes);      // /api/auth/login
 app.use("/api/dashboard", dashboardRoutes); // ✅ Protected route
 app.use('/api/upload', uploadRoutes);
+app.use("/api/explore", exploreRoute);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

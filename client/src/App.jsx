@@ -7,7 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Explore from './pages/Explore.jsx';
 import { Upload } from './pages/Upload.jsx';
 import { Reels } from './pages/Reels.jsx';
-import { Memes } from './pages/Memes.jsx';
+import  Memes  from './pages/Memes.jsx';
 import UserProfile from './pages/UserProfile.jsx';
 
 export const App = () => {
@@ -59,14 +59,6 @@ export const App = () => {
             }
           />
           <Route
-            path="/upload"
-            element={
-              <ProtectedRoute>
-                <Upload />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/reels"
             element={
               <ProtectedRoute>
@@ -82,6 +74,14 @@ export const App = () => {
               </ProtectedRoute>
             }
           />
+            <Route
+              path="/upload"
+              element={
+                <ProtectedRoute>
+                  <Upload />
+                </ProtectedRoute>
+              }
+            />
         </Routes>
 
         {/* Slide-in Profile Drawer */}
