@@ -1,131 +1,97 @@
-// ✅ Full Memes page (image-only Explore clone)
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Heart, MessageCircle, Share2 } from "lucide-react";
 
 const Memes = () => {
   const [memes, setMemes] = useState([]);
-  const [index, setIndex] = useState(0);
-  const [showMore, setShowMore] = useState(false);
-  const [lastScrollTime, setLastScrollTime] = useState(0);
 
   useEffect(() => {
     const fetchMemes = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/explore");
-        const imagesOnly = res.data.filter((item) => !item.url.includes(".mp4"));
-        const shuffled = imagesOnly.sort(() => 0.5 - Math.random());
-        setMemes(shuffled);
+        const imagePosts = res.data.filter(
+          (post) =>
+            post.url &&
+            (post.url.endsWith(".jpg") ||
+              post.url.endsWith(".jpeg") ||
+              post.url.endsWith(".png"))
+        );
+        setMemes(imagePosts);
       } catch (err) {
-        console.error("Failed to fetch memes", err);
+        console.error("Error fetching memes:", err);
       }
     };
 
     fetchMemes();
   }, []);
 
-  useEffect(() => {
-    const throttle = 600;
-    const handleScroll = (e) => {
-      const now = Date.now();
-      if (now - lastScrollTime < throttle) return;
-
-      if (e.deltaY > 0) {
-        setIndex((prev) => (prev + 1) % memes.length);
-      } else if (e.deltaY < 0) {
-        setIndex((prev) => (prev - 1 + memes.length) % memes.length);
-      }
-      setLastScrollTime(now);
-      setShowMore(false);
-    };
-
-    const handleKey = (e) => {
-      if (e.key === "ArrowDown") {
-        setIndex((prev) => (prev + 1) % memes.length);
-        setShowMore(false);
-      } else if (e.key === "ArrowUp") {
-        setIndex((prev) => (prev - 1 + memes.length) % memes.length);
-        setShowMore(false);
-      }
-    };
-
-    window.addEventListener("wheel", handleScroll);
-    window.addEventListener("keydown", handleKey);
-
-    return () => {
-      window.removeEventListener("wheel", handleScroll);
-      window.removeEventListener("keydown", handleKey);
-    };
-  }, [memes, lastScrollTime]);
-
-  if (!memes.length) return <div className="text-center mt-10">Loading memes...</div>;
-
-  const current = memes[index];
-  const next = memes[(index + 1) % memes.length];
-
-  const preventDownload = (e) => e.preventDefault();
-
-  const truncateDescription = (text, limit = 100) => {
-    if (text.length <= limit) return text;
-    return showMore ? text : text.slice(0, limit) + "...";
-  };
+  if (!memes.length) {
+    return (
+      <div className="text-center mt-20 text-gray-500">Loading memes...</div>
+    );
+  }
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 gap-4 px-4 py-8 select-none">
-      <div
-        className="bg-white p-4 rounded-xl shadow-lg w-[400px] max-h-[90vh] overflow-hidden"
-        onContextMenu={preventDownload}
-      >
-        <div className="font-semibold text-gray-800 mb-2">
-          Uploader: {current.username || "Anonymous"} ({current.email || "hidden"})
-        </div>
+    <div className="flex flex-col items-center bg-gray-100 py-8 min-h-screen gap-10">
+      {memes.map((post, index) => {
+        const username = post?.user?.username || "Unknown";
+        const email = post?.user?.email || "N/A";
+        const firstLetter = username[0]?.toUpperCase() || "?";
 
-        <div className="aspect-[4/5] bg-black mb-2">
-          <img
-            src={current.url}
-            alt={current.caption}
-            className="w-full h-full object-cover rounded-md"
-            onContextMenu={preventDownload}
-            draggable={false}
-          />
-        </div>
+        return (
+          <div
+            key={index}
+            className="w-full max-w-md bg-black rounded-2xl shadow-lg overflow-hidden relative"
+          >
+            {/* Meme Image */}
+            <div className="aspect-[4/5] w-full h-full relative">
+              <img
+                src={post.url}
+                alt={post.caption}
+                className="w-full h-full object-cover select-none"
+                draggable={false}
+              />
 
-        <div className="text-sm text-gray-600 mb-1"><strong>Caption:</strong> {current.caption}</div>
-        <div className="text-sm text-gray-500 mb-2">
-          <strong>Description:</strong>{" "}
-          {truncateDescription(current.description)}{" "}
-          {current.description.length > 100 && (
-            <button
-              onClick={() => setShowMore(!showMore)}
-              className="text-blue-500 text-xs underline ml-1"
-            >
-              {showMore ? "See less" : "See more"}
-            </button>
-          )}
-        </div>
+              {/* Overlay Content */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/40 to-transparent text-white p-4 text-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-lg font-bold">
+                    {firstLetter}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-white">{username}</div>
+                    <div className="text-xs text-gray-200">{email}</div>
+                  </div>
+                </div>
 
-        <div className="flex justify-around text-gray-700 border-t pt-2">
-          <button>❤️ Like</button>
-          <button>💬 Comment</button>
-          <button>📤 Share</button>
-        </div>
-      </div>
+                <div className="mb-1">
+                  <strong>Caption:</strong> {post.caption}
+                </div>
+                <div>
+                  <strong>Description:</strong>{" "}
+                  {post.description.length > 120 ? (
+                    <span>
+                      {post.description.slice(0, 120)}...
+                      <button className="text-blue-300 text-xs ml-1">
+                        See more
+                      </button>
+                    </span>
+                  ) : (
+                    post.description
+                  )}
+                </div>
+              </div>
+            </div>
 
-      {next && (
-        <div
-          className="w-[250px] h-[140px] bg-white rounded-lg shadow flex flex-col items-center overflow-hidden"
-          onContextMenu={preventDownload}
-        >
-          <div className="text-xs text-gray-500 mt-2">⬇️ Next</div>
-          <div className="flex-1 w-full">
-            <img
-              src={next.url}
-              alt={next.caption}
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
+            {/* Action Buttons */}
+            <div className="absolute right-4 top-1/3 flex flex-col gap-5 text-white">
+              <Heart className="w-6 h-6 hover:text-red-500 cursor-pointer" />
+              <MessageCircle className="w-6 h-6 hover:text-blue-400 cursor-pointer" />
+              <Share2 className="w-6 h-6 hover:text-green-400 cursor-pointer" />
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })}
     </div>
   );
 };

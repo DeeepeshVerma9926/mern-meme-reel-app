@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { Heart, MessageCircle, Share2 } from "lucide-react";
 
-export const Reels = () => {
+const Reels = () => {
   const [posts, setPosts] = useState([]);
   const [index, setIndex] = useState(0);
   const videoRef = useRef(null);
@@ -13,13 +14,11 @@ export const Reels = () => {
         const onlyReels = res.data
           .filter((post) => post.url.endsWith(".mp4"))
           .sort(() => 0.5 - Math.random()); // Shuffle
-
         setPosts(onlyReels);
       } catch (err) {
         console.error("Failed to fetch reels", err);
       }
     };
-
     fetchReels();
   }, []);
 
@@ -32,7 +31,6 @@ export const Reels = () => {
         setIndex((prev) => prev - 1);
       }
     };
-
     const handleKeyDown = (e) => {
       if (e.key === "ArrowDown" && index < posts.length - 1) {
         setIndex((prev) => prev + 1);
@@ -40,94 +38,77 @@ export const Reels = () => {
         setIndex((prev) => prev - 1);
       }
     };
-
     window.addEventListener("wheel", handleScroll, { passive: false });
     window.addEventListener("keydown", handleKeyDown);
-
     return () => {
       window.removeEventListener("wheel", handleScroll);
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [index, posts]);
 
+  const current = posts[index];
   const handleVideoClick = () => {
     const video = videoRef.current;
-    if (video) {
-      video.muted = !video.muted;
-    }
+    if (video) video.muted = !video.muted;
   };
-
   const handleMouseDown = () => {
     const video = videoRef.current;
     if (video) video.pause();
   };
-
   const handleMouseUp = () => {
     const video = videoRef.current;
     if (video) video.play();
   };
 
-  if (!posts.length) return <div className="text-center mt-10">Loading...</div>;
-
-  const current = posts[index];
-  const next = posts[(index + 1) % posts.length];
+  if (!current) return <div className="text-center mt-10">Loading reels...</div>;
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 gap-4 px-4 py-8 select-none">
-      {/* Main Post */}
-      <div className="bg-white p-4 rounded-xl shadow-lg w-[400px] max-h-[90vh] overflow-hidden">
-        <div className="font-semibold text-gray-800 mb-2">
-          Uploader: {current?.user?.username || "Unknown"} ({current?.user?.email || "N/A"})
-        </div>
+    <div className="w-full h-screen bg-black flex justify-center items-center select-none">
+      <div className="relative aspect-[9/16] h-full max-h-full w-auto rounded-xl overflow-hidden shadow-xl">
+        {/* Video */}
+        <video
+          ref={videoRef}
+          src={current.url}
+          autoPlay
+          muted
+          loop
+          className="w-full h-full object-cover"
+          onClick={handleVideoClick}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          controls={false}
+          controlsList="nodownload"
+          disablePictureInPicture
+        />
 
-        <div className="aspect-[9/16] bg-black mb-2 relative">
-          <video
-            ref={videoRef}
-            src={current.url}
-            autoPlay
-            muted
-            loop
-            className="w-full h-full object-cover rounded-md pointer-events-auto"
-            onClick={handleVideoClick}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            controls={false}
-            controlsList="nodownload"
-            disablePictureInPicture
-          />
-        </div>
+        {/* Overlay content */}
+        <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-between p-4 text-white bg-gradient-to-t from-black/70 via-black/30 to-transparent">
+          {/* Top: user info */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-lg">
+              {current.username?.charAt(0).toUpperCase() || "U"}
+            </div>
+            <div>
+              <div className="font-semibold">{current.username || "Anonymous"}</div>
+              <div className="text-sm text-gray-200">{current.email || "N/A"}</div>
+            </div>
+          </div>
 
-        <div className="text-sm text-gray-600 mb-1">
-          <strong>Caption:</strong> {current.caption}
-        </div>
-        <div className="text-sm text-gray-500 mb-2">
-          <strong>Description:</strong>{" "}
-          {current.description.length > 120 ? (
-            <span>
-              {current.description.slice(0, 120)}...
-              <button className="text-blue-600 text-xs ml-1">See more</button>
-            </span>
-          ) : (
-            current.description
-          )}
-        </div>
+          {/* Bottom: caption + actions */}
+          <div className="flex justify-between items-end">
+            <div className="max-w-[80%]">
+              <div className="text-base font-semibold mb-1">{current.caption}</div>
+              <div className="text-sm text-gray-200 line-clamp-3">{current.description}</div>
+            </div>
 
-        <div className="flex justify-around text-gray-700 border-t pt-2">
-          <button>❤️ Like</button>
-          <button>💬 Comment</button>
-          <button>📤 Share</button>
-        </div>
-      </div>
-
-      {/* Next Reel Preview */}
-      {next && (
-        <div className="w-[250px] h-[140px] bg-white rounded-lg shadow flex flex-col items-center overflow-hidden">
-          <div className="text-xs text-gray-500 mt-2">⬇️ Next</div>
-          <div className="flex-1 w-full">
-            <video src={next.url} muted className="w-full h-full object-cover" />
+            <div className="flex flex-col items-center gap-4">
+              <Heart className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
+              <MessageCircle className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
+              <Share2 className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

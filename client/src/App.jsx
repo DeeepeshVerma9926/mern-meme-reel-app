@@ -6,9 +6,11 @@ import { Signup } from './pages/Signup.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Explore from './pages/Explore.jsx';
 import { Upload } from './pages/Upload.jsx';
-import { Reels } from './pages/Reels.jsx';
+import  Reels  from './pages/Reels.jsx';
 import  Memes  from './pages/Memes.jsx';
 import UserProfile from './pages/UserProfile.jsx';
+import {EditProfile} from './pages/EditProfile.jsx'; // Make sure this is imported
+
 
 export const App = () => {
   const [openProfile, setOpenProfile] = useState(false);
@@ -79,6 +81,14 @@ export const App = () => {
               element={
                 <ProtectedRoute>
                   <Upload />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-profile"
+              element={
+                <ProtectedRoute>
+                  <EditProfile />
                 </ProtectedRoute>
               }
             />

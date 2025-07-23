@@ -88,10 +88,15 @@ export const Upload = () => {
     formData.append('description', description);
     formData.append('type', activeTab);
 
+    const token = localStorage.getItem("token"); // ⬅️ Get JWT from localStorage
+
     try {
       setUploading(true);
       await axios.post('http://localhost:5000/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`, // ⬅️ Add token in headers
+        },
       });
 
       alert('Uploaded successfully!');

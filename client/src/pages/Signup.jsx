@@ -5,6 +5,7 @@ import { z } from 'zod';
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -14,6 +15,7 @@ export const Signup = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
   });
 
@@ -45,6 +47,7 @@ export const Signup = () => {
         body: JSON.stringify({
           username: formData.name,
           email: formData.email,
+          phone: formData.phone,
           password: formData.password,
         }),
       });
@@ -94,6 +97,20 @@ export const Signup = () => {
               required
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email[0]}</p>}
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Phone</label>
+            <input
+              type="text"
+              name="phone"
+              className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+            />
+            {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone[0]}</p>}
           </div>
 
           {/* Password */}

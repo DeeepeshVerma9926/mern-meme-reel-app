@@ -9,6 +9,9 @@ import loginRoutes from "./routes/loginRoutes.js";     // Login
 import dashboardRoutes from "./routes/dashboard.js";   // Protected dashboard
 import uploadRoutes from "./routes/upload.js";
 import exploreRoute from "./routes/explore.js";
+import protectedRoutes from "./routes/protectedRoutes.js";
+import userRoutes from './routes/userRoutes.js';
+
 
 
 dotenv.config();
@@ -23,6 +26,10 @@ app.use("/api/auth", loginRoutes);      // /api/auth/login
 app.use("/api/dashboard", dashboardRoutes); // ✅ Protected route
 app.use('/api/upload', uploadRoutes);
 app.use("/api/explore", exploreRoute);
+app.use("/api/protected", protectedRoutes); // e.g. /api/protected/dashboard
+app.use("/api/user", userRoutes);
+
+
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

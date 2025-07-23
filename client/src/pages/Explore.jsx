@@ -1,6 +1,6 @@
-// frontend/src/pages/Explore.jsx
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { FaRegHeart, FaRegCommentDots, FaShareSquare } from "react-icons/fa";
 
 const Explore = () => {
   const [posts, setPosts] = useState([]);
@@ -9,7 +9,6 @@ const Explore = () => {
   const [lastScrollTime, setLastScrollTime] = useState(0);
   const videoRef = useRef(null);
 
-  // Fetch and shuffle posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -24,9 +23,8 @@ const Explore = () => {
     fetchPosts();
   }, []);
 
-  // Scroll & Arrow navigation
   useEffect(() => {
-    const scrollThrottle = 600; // ms
+    const scrollThrottle = 600;
 
     const handleScroll = (e) => {
       const now = Date.now();
@@ -105,7 +103,9 @@ const Explore = () => {
         className="bg-white p-4 rounded-xl shadow-lg w-[400px] max-h-[90vh] overflow-hidden"
         onContextMenu={preventDownload}
       >
-        <div className="font-semibold text-gray-800 mb-2">Uploader: Anonymous</div>
+        <div className="font-semibold text-gray-800 mb-2">
+          Uploader: {current.username || "Anonymous"} ({current.email || "hidden"})
+        </div>
 
         <div className="aspect-[4/5] bg-black mb-2">
           {isVideo ? (
@@ -147,20 +147,30 @@ const Explore = () => {
           )}
         </div>
 
-        <div className="flex justify-around text-gray-700 border-t pt-2">
-          <button>❤️ Like</button>
-          <button>💬 Comment</button>
-          <button>📤 Share</button>
+        {/* Action Buttons */}
+        <div className="flex justify-around items-center text-gray-700 border-t pt-3">
+          <button className="flex items-center gap-1 hover:text-red-500">
+            <FaRegHeart size={18} />
+            <span className="text-sm">Like</span>
+          </button>
+          <button className="flex items-center gap-1 hover:text-blue-500">
+            <FaRegCommentDots size={18} />
+            <span className="text-sm">Comment</span>
+          </button>
+          <button className="flex items-center gap-1 hover:text-green-600">
+            <FaShareSquare size={18} />
+            <span className="text-sm">Share</span>
+          </button>
         </div>
       </div>
 
-      {/* Next Post Preview */}
+      {/* Next Preview */}
       {next && (
         <div
           className="w-[250px] h-[140px] bg-white rounded-lg shadow flex flex-col items-center overflow-hidden"
           onContextMenu={preventDownload}
         >
-          <div className="text-xs text-gray-500 mt-2">⬇️ Next</div>
+          <div className="text-xs text-gray-500 mt-2">Next</div>
           <div className="flex-1 w-full">
             {next.url.includes(".mp4") ? (
               <video
